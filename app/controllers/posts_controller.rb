@@ -1,3 +1,5 @@
+require "tweeter"
+
 class PostsController < ApplicationController
   def index
     @posts = Post.all
@@ -13,11 +15,18 @@ class PostsController < ApplicationController
 
   def create
     @post = Post.create!(post_params)
+    tweeter.tweet("#{@post.title} #{post_url(@post)}")
+
     redirect_to @post, notice: 'Post was successfully created.'
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
+  private
+
   def post_params
     params.require(:post).permit(:title, :body)
+  end
+
+  def tweeter
+    @tweeter ||= Tweeter.new(Net::HTTP)
   end
 end
